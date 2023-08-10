@@ -12,3 +12,7 @@ install bevy engine OS dependencies \
 `cargo run`
 
 ## Screenshots
+
+![Game](https://raw.githubusercontent.com/adrian7123/bevy-game/master/github/medias/Screenshot_2023-08-10_131239.png)
+
+## Clips
