@@ -1,4 +1,7 @@
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::{
+    prelude::*,
+    window::{PrimaryWindow, WindowTheme},
+};
 use debug::DebugPlugin;
 mod debug;
 
@@ -7,7 +10,16 @@ pub const PLAYER_SIZE: f32 = 32.0;
 fn main() {
     App::new()
         .add_plugins((
-            DefaultPlugins.set(ImagePlugin::default_nearest()),
+            DefaultPlugins
+                .set(ImagePlugin::default_nearest())
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        title: "Game".to_string(),
+                        window_theme: Some(WindowTheme::Dark),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                }),
             DebugPlugin,
         )) // prevents blurry sprites
         .add_systems(Startup, setup)
@@ -31,6 +43,10 @@ fn setup(
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
+    commands.spawn(SceneBundle {
+        scene: asset_server.load("scenes/Monkey.gltf#Scene0"),
+        ..default()
+    });
     let texture_atlas_handle = texture_atlases.add(TextureAtlas::from_grid(
         asset_server.load("sprites/gabe-idle-run-new.png"),
         Vec2::new(24.0, 24.0),
@@ -70,6 +86,7 @@ pub fn player_movement(
     time: Res<Time>,
     window_query: Query<&Window, With<PrimaryWindow>>,
 ) {
+    let mut moving = false;
     let window = window_query.get_single().unwrap();
 
     for (mut transform, mut sprite, player, mut timer) in &mut query {
@@ -80,6 +97,7 @@ pub fn player_movement(
             match key {
                 // KeyCode::Up | KeyCode::W => direction.y += 1.0,
                 KeyCode::Left | KeyCode::A => {
+                    moving = true;
                     direction.x -= 1.0;
                     sprite.flip_x = true;
                     //animação quando o player estiver correndo
@@ -97,6 +115,7 @@ pub fn player_movement(
                 }
                 // KeyCode::Down | KeyCode::S => direction.y -= 1.0,
                 KeyCode::Right | KeyCode::D => {
+                    moving = true;
                     direction.x += 1.0;
                     sprite.flip_x = false;
                     //animação quando o player estiver correndo
@@ -116,8 +135,8 @@ pub fn player_movement(
             }
         }
 
-        //animação quando o player estiver parado
-        if keyboard_input.get_pressed().len() == 0 {
+        // animação quando o player estiver parado
+        if moving == false {
             timer.tick(time.delta());
             if timer.just_finished() {
                 // se o sprite atual for o ultimo sprite da animação, volta para o primeiro sprite
