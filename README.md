@@ -1,4 +1,6 @@
-# Jogo feito com Bevy engine
+# Game made with Bevy engine
+
+Sprite game made in Rust with bevy engine 🦀
 
 ## Installation
 
